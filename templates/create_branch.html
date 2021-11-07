@@ -55,15 +55,23 @@
 <body class="text-center">
 
   <main class="form-signin">
-    <form action="{{url_for('login')}}" method="post">
+    <form action="{{url_for('create_branch')}}" method="post">
       <img class="mb-4" src="https://getbootstrap.jp/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72"
         height="57">
-      <h1 class="h3 mb-3 fw-normal">ログインする</h1>
+      <h1 class="h3 mb-3 fw-normal">支部アカウント作成</h1>
+      <label for="inputEmail" class="visually-hidden">支部名</label>
+      <input type="text" name="branch_name" id="inputEmail" class="form-control" placeholder="支部名" required autofocus value="{{branch_name}}">
       <label for="inputEmail" class="visually-hidden">ログイン名</label>
-      <input type="text" name="login_name" id="inputEmail" class="form-control" placeholder="ログイン名(アルファベット)" required autofocus>
+      <input type="text" name="login_name" id="inputEmail" class="form-control" placeholder="ログイン名" required autofocus value="{{login_name}}">
       <label for="inputPassword" class="visually-hidden">パスワード</label>
-      <input type="password" name="password" id="inputPassword" class="form-control" placeholder="パスワード" required>
-
+      <input type="password" name="password" id="inputPassword" class="form-control" placeholder="パスワード" required value="{{password}}">
+      <label for="inputPassword" class="visually-hidden">パスワード(確認)</label>
+      <input type="password" name="confirm_password" id="inputPassword" class="form-control" placeholder="パスワード(確認)" required value="{{confirm_password}}">
+      <label for="inputPassword" class="visually-hidden">管理者権限</label>
+      <select name="day" class="form-select d-inline">
+        <option value="True">〇</option>
+        <option value="False" selected>×</option>    
+    </select>
       <button class="w-100 btn btn-lg btn-primary" type="submit">サインイン</button>
     </form>
       <p class="mt-5 mb-3 text-muted">&copy; 2017-2021</p>

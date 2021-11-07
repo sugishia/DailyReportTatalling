@@ -40,11 +40,11 @@
         <p class="mt-5">活動支部参加人数</p>   
         <div class="col-md-6 form-group">
             <label for="in_party">党内</label>
-            <input type="number" class="form-control" id="in_party" placeholder="0" value="0">
+            <input type="number" class="form-control" min="0" name="in_party" placeholder="0" value="0">
         </div>
         <div class="col-md-6 form-group">
             <label for="out_party">党外</label>
-            <input type="number" class="form-control" id="out_party" placeholder="0" value="0">
+            <input type="number" class="form-control" min="0" name="out_party" placeholder="0" value="0">
         </div>
     </div>
 
@@ -52,11 +52,11 @@
         <p class="mt-5">全国総決起集会の討議</p> 
         <div class="col-md-6 form-group">
             <label for="exampleInputName2">視聴・読了者数</label>
-            <input type="number" class="form-control" id="readed" placeholder="0" value="0">
+            <input type="number" class="form-control" min="0" name="readed" placeholder="0" value="0">
         </div>
         <div class="col-md-6 form-group">
             <label for="exampleInputEmail2">討議開始</label>
-            <select name="readed" class="form-select d-inline">
+            <select name="discuss" class="form-select d-inline">
                 <option value="0"></option>
                 <option value="yes">〇</option>
                 <option value="no">×</option>

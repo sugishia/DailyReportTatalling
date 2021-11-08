@@ -1,4 +1,5 @@
-from flask import request, redirect, render_template, url_for
+from flask import request, redirect, render_template, url_for, session
+from flask_migrate import current
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_required, login_user, logout_user
 from flask_login.utils import confirm_login
@@ -25,6 +26,7 @@ def login():
         print(branch.branch_name)
         if branch and check_password_hash(branch.password, password):
             login_user(branch)
+            session['login_id'] = branch.id
             return redirect(url_for('display'))
         else:
             return render_template('login.html', error='ユーザー名かパスワードが間違っています')
@@ -82,7 +84,8 @@ def report():
 
         print(f'date:{date}, in_party:{in_party}, out_party:{out_party}, readed:{readed}, discuss:{discuss}')
         with db.session.begin(subtransactions=True):
-            new_report = DailyReport(date, in_party, out_party, readed, discuss=False)
+            branch_id = session.get('login_id')
+            new_report = DailyReport(date, in_party, out_party, readed, branch_id, discuss)
             db.session.add(new_report)
         db.session.commit()
 

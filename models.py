@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import UserMixin
 from flask_bcrypt import check_password_hash, generate_password_hash
-from sqlalchemy.orm import create_session
+from sqlalchemy.orm import backref, create_session
 from app import app
 
 import pytz
@@ -24,11 +24,12 @@ class DailyReport(db.Model):
     is_debate = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime)
 
-    def __init__(self, date, in_party, out_party, readed, is_debate):
+    def __init__(self, date, in_party, out_party, readed, branch_id, is_debate):
         self.date = date
         self.in_party = in_party
         self.out_party = out_party
         self.readed = readed
+        self.branch_id = branch_id
         self.is_debate = is_debate
         self.created_at = datetime.now(pytz.timezone('Asia/Tokyo'))
 
@@ -43,7 +44,7 @@ class Branch(db.Model, UserMixin):
     is_commissioner = db.Column(db.Boolean, nullable=False)
     created_at = db.Column(db.DateTime)
 
-    report = db.relationship('DailyReport')
+    report = db.relationship('DailyReport', backref='dairy_reports')
 
     def __init__(self, branch_name, login_name, password, is_commissioner):
         self.branch_name = branch_name

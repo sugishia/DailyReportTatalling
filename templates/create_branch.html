@@ -65,10 +65,12 @@
       <input type="text" name="login_name" id="inputEmail" class="form-control" placeholder="ログイン名" required autofocus value="{{login_name}}">
       <label for="inputPassword" class="visually-hidden">パスワード</label>
       <input type="password" name="password" id="inputPassword" class="form-control" placeholder="パスワード" required value="{{password}}">
+      <p>{{error}}</p>
       <label for="inputPassword" class="visually-hidden">パスワード(確認)</label>
       <input type="password" name="confirm_password" id="inputPassword" class="form-control" placeholder="パスワード(確認)" required value="{{confirm_password}}">
+      <p>{{error}}</p>
       <label for="inputPassword" class="visually-hidden">管理者権限</label>
-      <select name="day" class="form-select d-inline">
+      <select name="is_commissioner" class="form-select d-inline">
         <option value="True">〇</option>
         <option value="False" selected>×</option>    
     </select>

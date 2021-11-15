@@ -3,18 +3,21 @@ from flask_migrate import current
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_required, login_user, logout_user
 from flask_login.utils import confirm_login
-from models import db, DailyReport, Branch
+from models import db, DailyReport, Branch, Branch_Report_Status, Branch_Report_Totals
 from app import app, login_manager
 
 from datetime import datetime
 import calendar
+import sqlite3
+import pandas as pd
 
 @login_manager.user_loader
 def load_user(branch_id):
     return Branch.query.get(int(branch_id))
 
-#@app.errorhandler(401)
-#def 
+@app.errorhandler(401)
+def redirect_login(error):
+    return redirect(url_for('login', error='ログインしてください')), 401
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -62,6 +65,9 @@ def create_branch():
 def display():
     if request.method == 'GET':
         return render_template('display.html')
+    #else:
+        #return render_template('nodata.html')
+        
 
 @app.route('/report', methods=['GET', 'POST'])
 @login_required
@@ -78,15 +84,42 @@ def report():
 
         readed = request.form['readed']
 
-        discuss = False
+        is_discuss = False
         if request.form['discuss'] == 'True':
-            discuss = True
+            is_discuss = True
 
-        print(f'date:{date}, in_party:{in_party}, out_party:{out_party}, readed:{readed}, discuss:{discuss}')
+        print(f'date:{date}, in_party:{in_party}, out_party:{out_party}, readed:{readed}, discuss:{is_discuss}')
         with db.session.begin(subtransactions=True):
             branch_id = session.get('login_id')
-            new_report = DailyReport(date, in_party, out_party, readed, branch_id, discuss)
+            new_report = DailyReport(date, in_party, out_party, readed, branch_id, is_discuss)
             db.session.add(new_report)
+
+            if not is_discuss and Branch_Report_Status.query.filter_by(branch_id=session['login_id']) == None:
+                new_statuses = Branch_Report_Status(is_discuss, session['login_id'])
+                db.session.add(new_statuses)
+        db.session.commit()
+        
+        with db.session.begin(subtransactions=True):
+            file_sqlite = './data.sqlite'
+            conn = sqlite3.connect(file_sqlite)
+            df = pd.read_sql_query('select * from dairy_reports', conn)
+            conn.close()
+
+            df['date'] = pd.to_datetime(df['date'])
+            df.sort_values(by='date', ascending=False)
+            df = df[df['branch_id']==session['login_id']]
+            print(df)
+
+            branch_report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id'])
+            if branch_report_total == None:
+                new_branch_report_total = Branch_Report_Totals(in_party, out_party, readed, session['login_id'])
+                db.session.add(new_branch_report_total)
+            else:
+                #df_sum = df.sum()
+                branch_report_total.in_party_total += in_party
+                branch_report_total.out_party_total += out_party
+                branch_report_total.readed_total += in_party
+
         db.session.commit()
 
         return redirect(url_for('display'))
@@ -96,10 +129,17 @@ def report():
 @login_required
 def logout():
     logout_user() # ログアウト
+    session.pop('login_id', None)
     return redirect(url_for('login'))
 
-def confirm_match_password(password, confirm_password) -> bool:
-    return True if password == confirm_password else False
+def sum_result(db_listdata):
+    sum = {'in_party':0, 'out_party':0, 'readed':0}
+    for data in db_listdata:
+        print(f'in_function: inparty = {data}')
+        sum['in_party'] += data.in_party
+        sum['out_party'] += data.out_party
+        sum['readed'] += data.readed
+    return sum
 
 def judge_commissioner(is_commissioner) -> bool:
     return True if is_commissioner == 'True' else False

@@ -9,12 +9,18 @@
       </h4>
     </div>
 
-    <p class="mt-5 mb-5 text-justify"><span class="fw-bolder"> １．活動参加者数　</span>●党内：12名　　●党外：2名</p>
-
+    <p class="mt-5 mb-5 text-justify"><span class="fw-bolder"> １．活動参加者数　</span>●党内：{#{sum_data['in_party']}#}名　　●党外：{#{sum_data['out_party']}#}名</p>
+    
     <p class="mt-5 d-inline text-justify fw-bolder">２．１０．６全国総決起集会の討議　</p>
     <div class="d-inline form-inline">
-      <label class="checkbox-inline"><input type="radio" disabled> 始めた　</label>
-      <label class="checkbox-inline"><input type="radio" disabled checked> これから</label>
+      {# % if sum_data['is_debate'] > 0 % #}
+        <label class="checkbox-inline"><input type="radio" disabled checked> 始めた　</label>
+        <label class="checkbox-inline"><input type="radio" disabled> これから</label>
+      {#% else %#}
+        <label class="checkbox-inline"><input type="radio" disabled> 始めた　</label>
+        <label class="checkbox-inline"><input type="radio" disabled checked> これから</label>
+      {#% endif %#}
+      
     </div>
 
     <p class="mt-5 text-justify"><span class="fw-bolder"> ３．スタンディング実施数　</span>日計：15回　　累計：723回</p>

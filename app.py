@@ -1,8 +1,10 @@
 from flask import Flask
 from flask_login import LoginManager
 import os
+from datetime import timedelta
 
 app = Flask(__name__)
+app.permanent_session_lifetime = timedelta(minutes=10)
 
 login_manager = LoginManager()
 login_manager.init_app(app)

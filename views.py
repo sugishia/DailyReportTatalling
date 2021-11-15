@@ -17,7 +17,7 @@ def load_user(branch_id):
 
 @app.errorhandler(401)
 def redirect_login(error):
-    return redirect(url_for('login', error='ログインしてください')), 401
+    return render_template('login.html', error='ログインしてください'), 401
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -64,10 +64,13 @@ def create_branch():
 @login_required
 def display():
     if request.method == 'GET':
-        return render_template('display.html')
-    #else:
-        #return render_template('nodata.html')
-        
+        report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id']).first()
+        print(report_total, session['login_id'], type(session['login_id']))
+        if report_total != None:
+            total_list = {'in_total':report_total.in_party_total, 'out_party':report_total.out_party_total, 'readed':report_total.readed_total}
+            return render_template('display.html', total_list=total_list)
+        else:
+            return render_template('nodata.html')    
 
 @app.route('/report', methods=['GET', 'POST'])
 @login_required
@@ -110,15 +113,16 @@ def report():
             df = df[df['branch_id']==session['login_id']]
             print(df)
 
-            branch_report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id'])
+            branch_report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id']).first()
+            print(branch_report_total)
             if branch_report_total == None:
                 new_branch_report_total = Branch_Report_Totals(in_party, out_party, readed, session['login_id'])
                 db.session.add(new_branch_report_total)
             else:
                 #df_sum = df.sum()
-                branch_report_total.in_party_total += in_party
-                branch_report_total.out_party_total += out_party
-                branch_report_total.readed_total += in_party
+                branch_report_total.in_party_total += int(in_party)
+                branch_report_total.out_party_total += int(out_party)
+                branch_report_total.readed_total += int(readed)
 
         db.session.commit()
 

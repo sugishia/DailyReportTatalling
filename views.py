@@ -58,17 +58,26 @@ def create_branch():
     
     return render_template('create_branch.html')
 
-
+@app.route('/report_total', methods=['GET'])
+@login_required
+def report_total():
+    branch = Branch.query.get(session['login_id'])
+    if not branch.is_commissioner:
+        return render_template('display.html')
+    return render_template('report_total.html')
 
 @app.route('/display', methods=['GET', 'POST'])
 @login_required
 def display():
     if request.method == 'GET':
         report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id']).first()
-        print(report_total, session['login_id'], type(session['login_id']))
+        branch_status = Branch_Report_Status.query.filter_by(branch_id=session['login_id']).first()
+        print(branch_status)
         if report_total != None:
-            total_list = {'in_total':report_total.in_party_total, 'out_party':report_total.out_party_total, 'readed':report_total.readed_total}
-            return render_template('display.html', total_list=total_list)
+            total_list = {'in_party':report_total.in_party_total, 'out_party':report_total.out_party_total, 'readed':report_total.readed_total}
+            status_list = {'is_debate': branch_status.is_debate}
+            return render_template('display.html', total_list=total_list, status_list=status_list)
+            #return render_template('display.html', total_list=total_list)
         else:
             return render_template('nodata.html')    
 
@@ -87,32 +96,25 @@ def report():
 
         readed = request.form['readed']
 
-        is_discuss = False
+        is_debate = False
         if request.form['discuss'] == 'True':
-            is_discuss = True
+            is_debate = True
 
-        print(f'date:{date}, in_party:{in_party}, out_party:{out_party}, readed:{readed}, discuss:{is_discuss}')
+        print(f'date:{date}, in_party:{in_party}, out_party:{out_party}, readed:{readed}, discuss:{is_debate}')
         with db.session.begin(subtransactions=True):
             branch_id = session.get('login_id')
-            new_report = DailyReport(date, in_party, out_party, readed, branch_id, is_discuss)
+            new_report = DailyReport(date, in_party, out_party, readed, branch_id, is_debate)
             db.session.add(new_report)
-
-            if not is_discuss and Branch_Report_Status.query.filter_by(branch_id=session['login_id']) == None:
-                new_statuses = Branch_Report_Status(is_discuss, session['login_id'])
+            
+            status = Branch_Report_Status.query.filter_by(branch_id=session['login_id']).first()
+            if status == None:
+                new_statuses = Branch_Report_Status(is_debate, session['login_id'])
                 db.session.add(new_statuses)
+            else:
+                status.is_debate = is_debate
         db.session.commit()
         
         with db.session.begin(subtransactions=True):
-            file_sqlite = './data.sqlite'
-            conn = sqlite3.connect(file_sqlite)
-            df = pd.read_sql_query('select * from dairy_reports', conn)
-            conn.close()
-
-            df['date'] = pd.to_datetime(df['date'])
-            df.sort_values(by='date', ascending=False)
-            df = df[df['branch_id']==session['login_id']]
-            print(df)
-
             branch_report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id']).first()
             print(branch_report_total)
             if branch_report_total == None:

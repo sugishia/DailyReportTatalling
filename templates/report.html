@@ -7,7 +7,7 @@
   </div>
   <form action="{{url_for('report')}}" method="post" class="form-inline">
     <div class="row margin">
-        <p class="mt-3">報告日時</p>   
+        <p class="mt-5 fw-bold">報 告 日 時</p>   
         <div class="w-25 d-inline">
             <span>月</span>
             <select name="month" class="form-select d-inline">
@@ -38,11 +38,11 @@
 
     <div class="row margin">
         <p class="mt-5">活動支部参加人数</p>   
-        <div class="col-md-6 form-group">
+        <div class="col-md-6 form-group w-25">
             <label for="in_party">党内</label>
             <input type="number" class="form-control" min="0" name="in_party" placeholder="0" value="0">
         </div>
-        <div class="col-md-6 form-group">
+        <div class="col-md-6 form-group w-25">
             <label for="out_party">党外</label>
             <input type="number" class="form-control" min="0" name="out_party" placeholder="0" value="0">
         </div>
@@ -50,11 +50,7 @@
 
     <div class="row margin">
         <p class="mt-5">全国総決起集会の討議</p> 
-        <div class="col-md-6 form-group">
-            <label for="exampleInputName2">視聴・読了者数</label>
-            <input type="number" class="form-control" min="0" name="readed" placeholder="0" value="0">
-        </div>
-        <div class="col-md-6 form-group">
+        <div class="col-md-6 form-group w-25">
             <label for="exampleInputEmail2">討議開始</label>
             <select name="discuss" class="form-select d-inline">
                 <option value="0"></option>
@@ -64,7 +60,83 @@
         </div>
     </div>
 
-    <div>
+    <div class="row margin">
+        <p class="mt-5">スタンディング実施数</p> 
+        <div class="col-md-6 form-group w-25">
+            <input type="number" class="form-control" min="0" name="standing" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5">全戸ビラ配布</p> 
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">東京民報号外</label>
+            <input type="number" class="form-control" min="0" name="leaf_m" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">赤旗号外</label>
+            <input type="number" class="form-control" min="0" name="leaf_a" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5">対話・支持拡大</p> 
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">対話</label>
+            <input type="number" class="form-control" min="0" name="leaf_m" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">比例支持拡大</label>
+            <input type="number" class="form-control" min="0" name="leaf_a" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5">全戸ビラ配布</p> 
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">東京民報号外</label>
+            <input type="number" class="form-control" min="0" name="leaf_m" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">赤旗号外</label>
+            <input type="number" class="form-control" min="0" name="leaf_a" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5">折り入って・働きかけ数</p>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">入党働きかけ数</label>
+            <input type="number" class="form-control" min="0" name="workon_join" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">入党者数</label>
+            <input type="number" class="form-control" min="0" name="join" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">日刊紙</label>
+            <input type="number" class="form-control" min="0" name="akahata_h" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">日曜版</label>
+            <input type="number" class="form-control" min="0" name="akahata_n" placeholder="0" value="0">
+        </div>
+        
+    </div>
+
+    <div class="row margin mt-3">
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">後援会ニュース読者</label>
+            <input type="number" class="form-control" min="0" name="akahata_n" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">折り入って働きかけ数</label>
+            <input type="number" class="form-control" min="0" name="akahata_n" placeholder="0" value="0">
+        </div>
+        
+    </div>
+
+    <div class="mt-5">
         <input class="btn btn-primary" type="submit" value="登録">
     </div>
     

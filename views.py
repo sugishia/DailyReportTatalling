@@ -26,7 +26,7 @@ def login():
         password = request.form.get('password')
 
         branch = Branch.query.filter_by(login_name=login_name).first()
-        print(branch.branch_name)
+        #print(branch.branch_name)
         if branch and check_password_hash(branch.password, password):
             login_user(branch)
             session['login_id'] = branch.id
@@ -74,7 +74,11 @@ def display():
         branch_status = Branch_Report_Status.query.filter_by(branch_id=session['login_id']).first()
         print(branch_status)
         if report_total != None:
-            total_list = {'in_party':report_total.in_party_total, 'out_party':report_total.out_party_total, 'readed':report_total.readed_total}
+            total_list = {'in_party':report_total.in_party, 'out_party':report_total.out_party, 'standing':report_total.standing,
+            'leaf_m': report_total.leaf_m, 'leaf_a': report_total.leaf_a, 'dialogue': report_total.dialogue,
+            'support': report_total.support, 'workon_join': report_total.workon_join, 'join': report_total.join,
+            'akahata_h': report_total.akahata_h, 'akahata_n': report_total.akahata_n, 'support_member': report_total.support_member,
+            'ask_favor': report_total.ask_fover}
             status_list = {'is_debate': branch_status.is_debate}
             return render_template('display.html', total_list=total_list, status_list=status_list)
             #return render_template('display.html', total_list=total_list)
@@ -127,9 +131,14 @@ def report():
                 branch_report_total.readed_total += int(readed)
 
         db.session.commit()
-
         return redirect(url_for('display'))
-    return render_template('report.html', today={'month':today.month, 'day':today.day}, days=calendar.monthrange(today.year, today.month)[1] + 1)
+
+    #get
+    branch_status = Branch_Report_Status.query.filter_by(branch_id=session['login_id']).first()
+    is_debate = False
+    if branch_status != None and :
+        is_debate = False
+    return render_template('report.html', is_reported=is_debate, today={'month':today.month, 'day':today.day}, days=calendar.monthrange(today.year, today.month)[1] + 1)
 
 @app.route('/logout')
 @login_required

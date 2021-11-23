@@ -52,7 +52,11 @@
         <p class="mt-5">全国総決起集会の討議</p> 
         <div class="col-md-6 form-group w-25">
             <label for="exampleInputEmail2">討議開始</label>
+            {% if is_reported %}
+            <select name="discuss" class="form-select d-inline" disabled>
+            {% else %}
             <select name="discuss" class="form-select d-inline">
+            {% endif %}
                 <option value="0"></option>
                 <option value="True">〇</option>
                 <option value="False">×</option>

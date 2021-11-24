@@ -40,12 +40,13 @@ class DailyReport(db.Model):
     akahata_n = db.Column(db.Integer, default=0)
     support_member = db.Column(db.Integer, default=0)
     ask_favor = db.Column(db.Integer, default=0)
+    comment = db.Column(db.Text, nullable=True)
 
     branch_id = db.Column(db.Integer, db.ForeignKey('branches.id'), nullable=False)
     created_at = db.Column(db.DateTime)
 
     def __init__(self, date, in_party, out_party, standing, leaf_m, leaf_a, dialogue, support, 
-    workon_join, join, akahata_h, akahata_n, support_member, ask_fover,  branch_id):
+    workon_join, join, akahata_h, akahata_n, support_member, ask_fover, comment, branch_id):
         self.date = date
         self.in_party = in_party
         self.out_party = out_party
@@ -60,6 +61,7 @@ class DailyReport(db.Model):
         self.akahata_n = akahata_n
         self.support_member = support_member
         self.ask_favor = ask_fover
+        self.comment = comment
 
         self.branch_id = branch_id
         self.created_at = datetime.now(pytz.timezone('Asia/Tokyo'))

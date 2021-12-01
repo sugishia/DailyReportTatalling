@@ -1,0 +1,154 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <div>
+    <h4 class="mt-5">{{current_user.branch_name}}支部　日報入力</h4>
+  </div>
+  <form action="{{url_for('report_admin')}}" method="post" class="form-inline">
+    <div class="row margin">
+        <p class="mt-5 fw-bold">①報告支部名</p>   
+        <div class="w-25 d-inline">
+            <select id="branch_select" name="branch_name" class="form-select d-inline">
+                <option value="-1">選択してください。</option>
+                {% for branch in branches %}
+                    <option value="{{branch.id}}">{{branch.branch_name}}</option>
+                {% endfor %}
+              </select>
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5 fw-bold">②報 告 日 時</p>   
+        <div class="w-25 d-inline">
+            <span>月</span>
+            <select name="month" class="brank_target form-select d-inline">
+                {% for month in range(1, 13) %}
+                    {% if month == today['month'] %}
+                    <option value="{{month}}" selected>{{month}}</option>
+                    {% else %}
+                    <option value="{{month}}">{{month}}</option>
+                    {% endif %}
+                {% endfor %}
+              </select>
+              
+        </div>
+        <div class="w-25 form-group d-inline">
+            <span>日</span>
+            <select name="day" class="brank_target form-select d-inline">
+                {% for day in range(1, days) %}
+                    {% if day == today['day'] %}
+                    <option value="{{day}}" selected>{{day}}</option>
+                    {% else %}
+                    <option value="{{day}}">{{day}}</option>    
+                    {% endif %}
+                    
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5 fw-bold">活動支部参加人数</p>   
+        <div class="col-md-6 form-group w-25">
+            <label for="in_party">党内</label>
+            <input type="number" class="brank_target form-control" min="0" name="in_party" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="out_party">党外</label>
+            <input type="number" class="brank_target form-control" min="0" name="out_party" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5 fw-bold">全国総決起集会の討議</p> 
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">討議開始{{msg}}</label>
+            <select id="discuss" name="discuss" class="brank_target form-select d-inline">
+                <option id="discuss_val" value="False"></option>
+                <option value="True">〇</option>
+                <option value="False">×</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5 fw-bold">スタンディング実施数</p> 
+        <div class="col-md-6 form-group w-25">
+            <input type="number" class="brank_target form-control" min="0" name="standing" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5 fw-bold">全戸ビラ配布</p> 
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">東京民報号外</label>
+            <input type="number" class="brank_target form-control" min="0" name="leaf_m" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">赤旗号外</label>
+            <input type="number" class="brank_target form-control" min="0" name="leaf_a" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5 fw-bold">対話・支持拡大</p> 
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">対話</label>
+            <input type="number" class="brank_target form-control" min="0" name="dialogue" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">比例支持拡大</label>
+            <input type="number" class="brank_target form-control" min="0" name="support" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin">
+        <p class="mt-5 fw-bold">折り入って・働きかけ数</p>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">入党働きかけ数</label>
+            <input type="number" class="brank_target form-control" min="0" name="workon_join" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">入党者数</label>
+            <input type="number" class="brank_target form-control" min="0" name="join" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">日刊紙</label>
+            <input type="number" class="brank_target form-control" min="0" name="akahata_h" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">日曜版</label>
+            <input type="number" class="brank_target form-control" min="0" name="akahata_n" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin mt-3">
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">後援会ニュース読者</label>
+            <input type="number" class="brank_target form-control" min="0" name="support_member" placeholder="0" value="0">
+        </div>
+        <div class="col-md-6 form-group w-25">
+            <label for="exampleInputEmail2">折り入って働きかけ数</label>
+            <input type="number" class="brank_target form-control" min="0" name="ask_fover" placeholder="0" value="0">
+        </div>
+    </div>
+
+    <div class="row margin mt-3">
+        <p class="mt-5 fw-bold">支部報告</p>
+        <div class="form-group w-100">
+            <textarea name="comment" class="brank_target form-control" placeholder="支部報告　入力してください"></textarea>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <input class="brank_target btn btn-primary" type="submit" value="登録">
+    </div>
+    
+</form>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- jQueryライブラリの読み込み-->
+<script src="{{url_for('static', filename='ajax.js')}}"></script>
+{% endblock content %}

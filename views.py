@@ -1,4 +1,4 @@
-from flask import request, redirect, render_template, url_for, session
+from flask import request, redirect, render_template, url_for, session, jsonify
 from flask_migrate import current
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_required, login_user, logout_user
@@ -31,6 +31,8 @@ def login():
         if branch and check_password_hash(branch.password, password):
             login_user(branch)
             session['login_id'] = branch.id
+            if branch.is_commissioner:
+                return redirect(url_for('display_admin'))
             return redirect(url_for('display'))
         else:
             return render_template('login.html', error='ユーザー名かパスワードが間違っています')
@@ -67,6 +69,11 @@ def report_total():
         return render_template('display.html')
     return render_template('report_total.html')
 
+@app.route('/display_admin', methods=['GET', 'POST'])
+@login_required
+def display_admin():
+    return render_template('display_admin.html')
+
 @app.route('/display', methods=['GET', 'POST'])
 @login_required
 def display():
@@ -74,7 +81,10 @@ def display():
         report_detail = DailyReport.query.filter_by(branch_id=session['login_id']).order_by(desc(DailyReport.created_at)).first()
         report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id']).first()
         branch_status = Branch_Report_Status.query.filter_by(branch_id=session['login_id']).first()
-        print(branch_status)
+
+        print(type(report_detail.date), report_detail.date.year)
+        report_detail.date = f'{report_detail.date.year}年{report_detail.date.month}月{report_detail.date.day}日'
+
         if report_total != None:
             report_list = {'date':report_detail.date, 'in_party':report_detail.in_party, 'out_party':report_detail.out_party, 'standing':report_detail.standing,
             'leaf_m': report_detail.leaf_m, 'leaf_a': report_detail.leaf_a, 'dialogue': report_detail.dialogue,
@@ -92,6 +102,88 @@ def display():
             #return render_template('display.html', total_list=total_list)
         else:
             return render_template('nodata.html')    
+
+@app.route('/report_admin', methods=['GET', 'POST'])
+@login_required
+def report_admin():
+    today = datetime.now()
+    if request.method == 'POST':
+
+        branch_id = request.form['branch_name']
+        #
+        month = request.form['month']
+        day = request.form['day']
+        date = datetime.strptime(f'{datetime.now().year}/{month}/{day}', '%Y/%m/%d')
+
+        in_party = request.form['in_party']
+        out_party = request.form['out_party']
+
+        try:
+            is_debate = False
+            if request.form['discuss'] == 'True':
+                is_debate = True
+        except Exception as e:
+            is_debate = True
+        
+        standing = request.form['standing']
+        leaf_m = request.form['leaf_m']
+        leaf_a = request.form['leaf_a']
+        dialogue = request.form['dialogue']
+        support = request.form['support']
+
+        workon_join = request.form['workon_join']
+        join = request.form['join']
+        akahata_h = request.form['akahata_h']
+        akahata_n = request.form['akahata_n']
+        support_member = request.form['support_member']
+        ask_fover = request.form['ask_fover']
+        comment = request.form['comment']
+
+        #print(f'date:{date}, in_party:{in_party}, out_party:{out_party}, readed:{readed}, discuss:{is_debate}')
+        with db.session.begin(subtransactions=True):
+            new_report = DailyReport(date, in_party, out_party, standing, leaf_m, leaf_a,
+            dialogue, support, workon_join, join, akahata_h, akahata_n, support_member, ask_fover, comment, branch_id)
+            db.session.add(new_report)
+            
+            status = Branch_Report_Status.query.filter_by(branch_id=branch_id).first()
+            if status == None:
+                new_statuses = Branch_Report_Status(is_debate, branch_id)
+                db.session.add(new_statuses)
+            else:
+                status.is_debate = is_debate
+        db.session.commit()
+        
+        with db.session.begin(subtransactions=True):
+            branch_report_total = Branch_Report_Totals.query.filter_by(branch_id=branch_id).first()
+            print(branch_report_total)
+            if branch_report_total == None:
+                new_branch_report_total = Branch_Report_Totals(date, in_party, out_party, standing, leaf_m, leaf_a,
+                dialogue, support, workon_join, join, akahata_h, akahata_n, support_member, ask_fover, branch_id)
+                db.session.add(new_branch_report_total)
+            else:
+                branch_report_total.date = date
+                branch_report_total.in_party += int(in_party)
+                branch_report_total.out_party += int(out_party)
+                branch_report_total.standing += int(standing)
+                branch_report_total.leaf_m += int(leaf_m)
+                branch_report_total.leaf_a += int(leaf_a)
+                branch_report_total.dialogue += int(dialogue)
+                branch_report_total.support += int(support)
+                branch_report_total.workon_join += int(workon_join)
+                branch_report_total.join += int(join)
+                branch_report_total.akahata_h += int(akahata_h)
+                branch_report_total.akahata_n += int(akahata_n)
+                branch_report_total.support_member += int(support_member)
+                branch_report_total.ask_favor += int(ask_fover)
+                branch_report_total.branch_id = branch_id
+
+        db.session.commit()
+        return redirect(url_for('display_admin'))
+
+    #get
+    branches = Branch.query.filter(Branch.login_name != 'admin').all()
+    print(branches)
+    return render_template('report_admin.html', today={'month':today.month, 'day':today.day}, days=calendar.monthrange(today.year, today.month)[1] + 1, branches=branches)
 
 @app.route('/report', methods=['GET', 'POST'])
 @login_required
@@ -187,6 +279,17 @@ def logout():
     logout_user() # ログアウト
     session.pop('login_id', None)
     return redirect(url_for('login'))
+
+@app.route('/ajax', methods=['POST'])
+def ajax_return():
+    if request.method == 'POST':
+        val1 = int(request.form['val'])
+        #print(val1, type(val1))
+        branch_status = Branch_Report_Status.query.filter_by(branch_id=val1).first()
+        if branch_status != None and branch_status.is_debate == True:
+            return jsonify({'result': True})
+        return jsonify({'result': False})
+    #return jsonify({'test': 'test'})
 
 def sum_result(db_listdata):
     sum = {'in_party':0, 'out_party':0, 'readed':0}

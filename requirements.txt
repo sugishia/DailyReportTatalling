@@ -46,15 +46,7 @@ Pygments
 python-dateutil
 python-editor==1.0.4
 pytz==2021.3
-pywin32==302
-pyzmq
-six==1.16.0
 SQLAlchemy==1.4.17
-tornado
-traitlets
-typing-extensions
-wcwidth
 Werkzeug
-wincertstore==0.2
 WTForms
 zipp

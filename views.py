@@ -1,4 +1,4 @@
-from flask import request, redirect, render_template, url_for, session, jsonify
+from flask import request, redirect, render_template, url_for, session, jsonify, abort
 from flask_migrate import current
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_required, login_user, logout_user
@@ -11,6 +11,18 @@ from datetime import datetime
 import calendar
 import sqlite3
 import pandas as pd
+
+def login_check(f):
+    def wrapper(*args, **kwargs):
+        print(session.get('login_id'), type(session.get('login_id')))
+        if session.get('login_id') != None:
+            print('デコレーターに入ったよ。')
+            f(*args, **kwargs)
+        else:
+            abort(401)
+            #pass
+    wrapper.__name__ = f.__name__
+    return wrapper
 
 @login_manager.user_loader
 def load_user(branch_id):
@@ -40,7 +52,7 @@ def login():
     return render_template('login.html')
 
 @app.route('/create_branch', methods=['GET','POST'])
-#@login_required
+@login_check
 def create_branch():
     if request.method == 'POST':
         branch_name = request.form.get('branch_name')
@@ -74,34 +86,35 @@ def report_total():
 def display_admin():
     return render_template('display_admin.html')
 
-@app.route('/display', methods=['GET', 'POST'])
-@login_required
+@app.route('/display', methods=['GET'])
+@login_check
 def display():
     if request.method == 'GET':
-        report_detail = DailyReport.query.filter_by(branch_id=session['login_id']).order_by(desc(DailyReport.created_at)).first()
-        report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id']).first()
-        branch_status = Branch_Report_Status.query.filter_by(branch_id=session['login_id']).first()
+        # report_detail = DailyReport.query.filter_by(branch_id=session['login_id']).order_by(desc(DailyReport.created_at)).first()
+        # report_total = Branch_Report_Totals.query.filter_by(branch_id=session['login_id']).first()
+        # branch_status = Branch_Report_Status.query.filter_by(branch_id=session['login_id']).first()
 
-        print(type(report_detail.date), report_detail.date.year)
-        report_detail.date = f'{report_detail.date.year}年{report_detail.date.month}月{report_detail.date.day}日'
+        # print(type(report_detail.date), report_detail.date.year)
+        # report_detail.date = f'{report_detail.date.year}年{report_detail.date.month}月{report_detail.date.day}日'
+        return render_template('display.html')
+        # if report_total != None:
+        #     report_list = {'date':report_detail.date, 'in_party':report_detail.in_party, 'out_party':report_detail.out_party, 'standing':report_detail.standing,
+        #     'leaf_m': report_detail.leaf_m, 'leaf_a': report_detail.leaf_a, 'dialogue': report_detail.dialogue,
+        #     'support': report_detail.support, 'workon_join': report_detail.workon_join, 'join': report_detail.join,
+        #     'akahata_h': report_detail.akahata_h, 'akahata_n': report_detail.akahata_n, 'support_member': report_detail.support_member,
+        #     'ask_favor': report_detail.ask_favor, 'comment':report_detail.comment}
 
-        if report_total != None:
-            report_list = {'date':report_detail.date, 'in_party':report_detail.in_party, 'out_party':report_detail.out_party, 'standing':report_detail.standing,
-            'leaf_m': report_detail.leaf_m, 'leaf_a': report_detail.leaf_a, 'dialogue': report_detail.dialogue,
-            'support': report_detail.support, 'workon_join': report_detail.workon_join, 'join': report_detail.join,
-            'akahata_h': report_detail.akahata_h, 'akahata_n': report_detail.akahata_n, 'support_member': report_detail.support_member,
-            'ask_favor': report_detail.ask_favor, 'comment':report_detail.comment}
-
-            total_list = {'in_party':report_total.in_party, 'out_party':report_total.out_party, 'standing':report_total.standing,
-            'leaf_m': report_total.leaf_m, 'leaf_a': report_total.leaf_a, 'dialogue': report_total.dialogue,
-            'support': report_total.support, 'workon_join': report_total.workon_join, 'join': report_total.join,
-            'akahata_h': report_total.akahata_h, 'akahata_n': report_total.akahata_n, 'support_member': report_total.support_member,
-            'ask_favor': report_total.ask_favor}
-            status_list = {'is_debate': branch_status.is_debate}
-            return render_template('display.html', report_list=report_list, total_list=total_list, status_list=status_list)
-            #return render_template('display.html', total_list=total_list)
-        else:
-            return render_template('nodata.html')    
+        #     total_list = {'in_party':report_total.in_party, 'out_party':report_total.out_party, 'standing':report_total.standing,
+        #     'leaf_m': report_total.leaf_m, 'leaf_a': report_total.leaf_a, 'dialogue': report_total.dialogue,
+        #     'support': report_total.support, 'workon_join': report_total.workon_join, 'join': report_total.join,
+        #     'akahata_h': report_total.akahata_h, 'akahata_n': report_total.akahata_n, 'support_member': report_total.support_member,
+        #     'ask_favor': report_total.ask_favor}
+        #     status_list = {'is_debate': branch_status.is_debate}
+        #     return render_template('display.html', report_list=report_list, total_list=total_list, status_list=status_list)
+        #     #return render_template('display.html', total_list=total_list)
+        # #return render_template('display.html')
+        # else:
+        #     return render_template('nodata.html')    
 
 @app.route('/report_admin', methods=['GET', 'POST'])
 @login_required
@@ -302,6 +315,9 @@ def sum_result(db_listdata):
 
 def judge_commissioner(is_commissioner) -> bool:
     return True if is_commissioner == 'True' else False
+
+
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
